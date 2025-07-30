@@ -30,8 +30,8 @@ include(pico_sdk_import.cmake)
 
 project(picow_http_client C CXX ASM)
 
-set(WIFI_SSID "Your Wi-Fi SSID")
-set(WIFI_PASSWORD "Your Wi-Fi Password")
+set(WIFI_SSID "SSID")
+set(WIFI_PASSWORD "SENHA")
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
@@ -66,6 +66,7 @@ target_link_libraries(picow_http_client
         pico_cyw43_arch_lwip_threadsafe_background
         example_lwip_http_util
         pico_stdlib
+        hardware_adc
         )
 pico_add_extra_outputs(picow_http_client)
 
@@ -96,3 +97,6 @@ set_source_files_properties(
         PROPERTIES
         COMPILE_OPTIONS "-Wno-unused-result"
         )
+
+pico_enable_stdio_usb(picow_http_client 1)
+pico_enable_stdio_uart(picow_http_client 0)

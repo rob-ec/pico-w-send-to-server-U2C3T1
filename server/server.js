@@ -68,6 +68,59 @@ app.get("/logs", (req, res) => {
 });
 
 /**
+ * Rota GET /log-get
+ * Recebe o estado do controle pelos parâmetros da URL e salva um novo registro.
+ * NOTA: Usar GET para criar dados não é uma prática padrão (REST),
+ * mas está implementado conforme solicitado.
+ */
+app.get("/log-get", (req, res) => {
+  // Extrai os parâmetros da query da URL
+  const { button1, button2, joystick_pressed, joystick_x, joystick_y } =
+    req.query;
+
+  // --- CONVERSÃO E VALIDAÇÃO DOS DADOS ---
+  // Parâmetros de URL são sempre strings, então precisamos convertê-los.
+
+  // Converte para boolean: 'true' vira true, qualquer outra coisa vira false.
+  const p_button1 = button1 === "true";
+  const p_button2 = button2 === "true";
+  const p_joystick_pressed = joystick_pressed === "true";
+
+  // Converte para número de ponto flutuante (float).
+  const p_joystick_x = parseFloat(joystick_x);
+  const p_joystick_y = parseFloat(joystick_y);
+
+  // Validação dos dados convertidos. Verifica se os números são válidos.
+  if (isNaN(p_joystick_x) || isNaN(p_joystick_y)) {
+    return res.status(400).json({
+      error:
+        "Dados inválidos. Verifique os valores de joystick_x e joystick_y.",
+    });
+  }
+
+  const sql = `INSERT INTO logs (timestamp, button1, button2, joystick_pressed, joystick_x, joystick_y) VALUES (?, ?, ?, ?, ?, ?)`;
+  const params = [
+    new Date().toISOString(),
+    p_button1,
+    p_button2,
+    p_joystick_pressed,
+    p_joystick_x,
+    p_joystick_y,
+  ];
+
+  db.run(sql, params, function (err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: "Log salvo com sucesso via GET!",
+      id: this.lastID,
+    });
+  });
+});
+
+/**
  * Rota POST /log
  * Recebe o estado do controle e salva um novo registro no banco de dados.
  */
